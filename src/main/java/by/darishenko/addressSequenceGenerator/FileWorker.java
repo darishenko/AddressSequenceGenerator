@@ -12,22 +12,22 @@ import java.util.List;
 
 public class FileWorker {
 
-    public static File chooseSingleFileToOpen(String fileInfo, String extension) throws IOException{
+    public static File chooseSingleFileToOpen(String fileInfo, String extension) throws IOException {
         Stage stage = new Stage();
         String userDirectory = System.getProperty("user.dir");
         Path dir = Files.createDirectories(Path.of(userDirectory));
         FileChooser fc = new FileChooser();
         fc.setInitialDirectory(dir.toFile());
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter(fileInfo, "*."+extension));
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter(fileInfo, "*." + extension));
         return fc.showOpenDialog(stage);
     }
 
-    public static File chooseSingleFileToSave(String userDirectory, String fileName, String extBeforeFileName) throws IOException{
+    public static File chooseSingleFileToSave(String userDirectory, String fileName, String extBeforeFileName) throws IOException {
         Stage stage = new Stage();
         FileChooser fc = new FileChooser();
         Path dir = Files.createDirectories(Path.of(userDirectory));
         fc.setInitialDirectory(dir.toFile());
-        fc.setInitialFileName(extBeforeFileName+ fileName);
+        fc.setInitialFileName(extBeforeFileName + fileName);
         return fc.showSaveDialog(stage);
     }
 
@@ -47,11 +47,13 @@ public class FileWorker {
         return fileLines;
     }
 
-    public static void writeToFile(File file,List<String> sequence) throws IOException {
-        FileWriter writer = new FileWriter(file);
-        for(String element : sequence){
-            writer.write(element + System.getProperty("line.separator"));
+    public static void writeToFile(File file, List<String> sequence) throws IOException {
+        if (file != null) {
+            FileWriter writer = new FileWriter(file);
+            for (String element : sequence) {
+                writer.write(element + System.getProperty("line.separator"));
+            }
+            writer.close();
         }
-        writer.close();
     }
 }

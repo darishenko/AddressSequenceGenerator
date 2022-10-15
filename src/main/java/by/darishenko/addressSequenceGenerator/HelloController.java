@@ -1,6 +1,7 @@
 package by.darishenko.addressSequenceGenerator;
 
 import by.darishenko.addressSequenceGenerator.generator.MainGenerator;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -10,8 +11,6 @@ import javafx.scene.control.TextField;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -52,12 +51,13 @@ public class HelloController {
                 writeGeneratingMatrix(matrix);
             }
         } catch (IOException e) {
-            showWarningMessage("File ERROR", "Файл не найден", "Повторите попытку");
+            showWarningMessage("Warning", "Файл не найден", "Повторите попытку");
         }
     }
 
     @FXML
     void GenerateSequence() {
+
         String ta_generatingMatrixText = ta_generatingMatrix.getText();
         List<String> generatingMatrix = List.of(ta_generatingMatrixText.split("[\n]+"));
         String initialState = tf_initialState.getText();
@@ -73,12 +73,11 @@ public class HelloController {
                 File chosenFile = FileWorker.chooseSingleFileToSave(file.getParent(), file.getName(), "result_");
                 FileWorker.writeToFile(chosenFile, generatedSequence);
             } catch (IOException e) {
-                showWarningMessage("File ERROR", "Файл не сохранен", "Повторите попытку");
+                showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
             }
         } else {
-            String userDirectory = System.getProperty("user.dir");
-            Path dir = Files.createDirectories(Path.of(userDirectory));
-            File chosenFile = FileWorker.chooseSingleFileToSave(userDirectory, ".txt", "");
+            String strUserDirectory = System.getProperty("user.dir");
+            File chosenFile = FileWorker.chooseSingleFileToSave(strUserDirectory, ".txt", "");
             FileWorker.writeToFile(chosenFile, generatedSequence);
         }
     }
@@ -89,7 +88,7 @@ public class HelloController {
             try {
                 FileWorker.writeToFile(file, generatedSequence);
             } catch (IOException e) {
-                showWarningMessage("File ERROR", "Файл не сохранен", "Повторите попытку");
+                showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
             }
         } else {
             saveAsToFile();
@@ -98,30 +97,35 @@ public class HelloController {
 
     @FXML
     void initialize() {
-
         b_generateSequence.setDisable(true);
 
-//        Pattern p = Pattern.compile("([01\s]+)*");
-//        tf_initialState.textProperty().addListener((observableValue, oldValue, newValue) -> {
-//            if (p.matcher(newValue).matches()){
-//                tf_initialState.setStyle(null);
-//                b_generateSequence.setDisable(false);
-//            }else{
-//                tf_initialState.setStyle("-fx-border-color: red ; fx-border-width: 2px");
-//                b_generateSequence.setDisable(true);
-//            }
-//        });
+        Pattern patternInitialState = Pattern.compile("([01\s]+)*");
+        Pattern patternGeneratingMatrix = Pattern.compile("([01]|(\s*[01]+)+[\n\s]*)+");
+        ChangeListener<String> validationGeneratingSequenceListener = ((observable, oldValue, newValue) -> {
+            int errorValidationCounter = 0;
 
-        Pattern p2 = Pattern.compile("([01]+[\n\s]*)+");
-        ta_generatingMatrix.textProperty().addListener((observableValue, oldValue, newValue) -> {
-            if (p2.matcher(newValue).matches() && !ta_generatingMatrix.getText().trim().isEmpty()) {
-                ta_generatingMatrix.setStyle(null);
-                b_generateSequence.setDisable(false);
+            if (patternInitialState.matcher(tf_initialState.getText()).matches()) {
+                tf_initialState.setStyle(null);
             } else {
-                ta_generatingMatrix.setStyle("-fx-border-color: red ; fx-border-width: 2px");
+                tf_initialState.setStyle("-fx-border-color: red ; fx-border-width: 2px");
+                errorValidationCounter++;
                 b_generateSequence.setDisable(true);
             }
+
+            if (patternGeneratingMatrix.matcher(ta_generatingMatrix.getText()).matches()) {
+                ta_generatingMatrix.setStyle(null);
+            } else {
+                ta_generatingMatrix.setStyle("-fx-border-color: red ; fx-border-width: 2px");
+                errorValidationCounter++;
+                b_generateSequence.setDisable(true);
+            }
+
+            if (errorValidationCounter == 0) {
+                b_generateSequence.setDisable(false);
+            }
         });
+        ta_generatingMatrix.textProperty().addListener(validationGeneratingSequenceListener);
+        tf_initialState.textProperty().addListener(validationGeneratingSequenceListener);
 
 
     }

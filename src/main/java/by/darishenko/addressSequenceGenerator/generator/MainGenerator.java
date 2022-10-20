@@ -1,5 +1,7 @@
 package by.darishenko.addressSequenceGenerator.generator;
 
+import by.darishenko.addressSequenceGenerator.exception.MyException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class MainGenerator {
         this.initialState = initialState;
     }
 
-    public List<Integer> generateSequence(List<Integer> generatingMatrix) {
+    public List<Integer> generateSequence(List<Integer> generatingMatrix) throws MyException {
         List<Integer> result = new ArrayList<>();
         SwitchingSequenceGenerator switchingSequenceGenerator = new SwitchingSequenceGenerator(length);
         List<Integer> switchMatrix = switchingSequenceGenerator.generateSequence();

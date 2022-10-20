@@ -42,7 +42,6 @@ public class FileWorker {
                 fileLines.add(currentString);
             }
         }
-
         System.out.println(Arrays.toString(fileLines.toArray()));
         return fileLines;
     }
@@ -50,9 +49,11 @@ public class FileWorker {
     public static void writeToFile(File file, List<String> sequence) throws IOException {
         if (file != null) {
             FileWriter writer = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
             for (String element : sequence) {
-                writer.write(element + System.getProperty("line.separator"));
+                bufferedWriter.write(element + System.getProperty("line.separator"));
             }
+            bufferedWriter.close();
             writer.close();
         }
     }

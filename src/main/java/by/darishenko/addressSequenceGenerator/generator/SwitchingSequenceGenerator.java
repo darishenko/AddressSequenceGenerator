@@ -1,5 +1,6 @@
 package by.darishenko.addressSequenceGenerator.generator;
 
+import by.darishenko.addressSequenceGenerator.exception.MyException;
 import by.darishenko.addressSequenceGenerator.math.ExtraMath;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class SwitchingSequenceGenerator {
         return initialState;
     }
 
-    public List<Integer> generateSequence() {
+    public List<Integer> generateSequence() throws MyException {
         List<Integer> grayCodes = GrayGenerator.generateSequence(length);
         List<Integer> result = new ArrayList<>();
 

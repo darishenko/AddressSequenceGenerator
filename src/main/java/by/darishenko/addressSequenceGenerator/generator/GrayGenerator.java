@@ -1,5 +1,7 @@
 package by.darishenko.addressSequenceGenerator.generator;
 
+import by.darishenko.addressSequenceGenerator.exception.MyException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,14 +14,16 @@ public class GrayGenerator {
             return result;
         }
 
-        List<Integer> result = generateSequence(n - 1);
-        int numToAdd = 1 << (n - 1);
+            List<Integer> result = generateSequence(n - 1);
+            int numToAdd = 1 << (n - 1);
 
-        for (int i = result.size() - 1; i >= 0; i--) {
-            result.add(numToAdd + result.get(i));
+            for (int i = result.size() - 1; i >= 0; i--) {
+                result.add(numToAdd + result.get(i));
+            }
+            return result;
+        } catch (StackOverflowError e) {
+            throw new MyException("Ошибка", "При генерации адресной последовательности возникла ошибка", "Введите порождающую матрицу меньшей длины");
         }
-
-        return result;
     }
 
 }

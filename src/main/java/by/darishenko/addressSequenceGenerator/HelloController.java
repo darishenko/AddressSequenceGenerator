@@ -2,15 +2,33 @@ package by.darishenko.addressSequenceGenerator;
 
 import by.darishenko.addressSequenceGenerator.exception.MyException;
 import by.darishenko.addressSequenceGenerator.generator.MainGenerator;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static java.lang.Integer.parseInt;
 
 public class HelloController {
     List<String> generatingMatrixFromFile = null;
@@ -83,6 +101,10 @@ public class HelloController {
             addressSequence = BinaryConverter.convertDigitsToBinaryStrings(generatedAddressSequence, initialState.length());
             ta_generatedAddressSequence.clear();
             writeGeneratingMatrix(addressSequence, ta_generatedAddressSequence);
+            System.out.println(generatedAddressSequence);
+
+
+            createGistogramm(generatedAddressSequence);
         } catch (MyException e) {
             showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
         }
@@ -118,6 +140,73 @@ public class HelloController {
         }
     }
 
+    private void createGistogramm(List<Integer> sequence) {
+        HashMap<Integer, Integer> sequenceHashMap = new HashMap<>();
+        for (int elem : sequence) {
+            if (!sequenceHashMap.containsKey(elem)) {
+                sequenceHashMap.put(elem, 1);
+            } else {
+                sequenceHashMap.put(elem, sequenceHashMap.get(elem) + 1);
+            }
+        }
+        ArrayList<Integer> valueTimes = new ArrayList<>(sequenceHashMap.values());
+        ArrayList<Integer> value = new ArrayList<>(sequenceHashMap.keySet());
+        Collections.sort(valueTimes);
+        int maxY = valueTimes.get(valueTimes.size() - 1);
+        //
+        System.out.println(maxY);
+        System.out.println(valueTimes);
+        System.out.println(sequenceHashMap);
+        //
+
+        CategoryAxis x = new CategoryAxis();
+        NumberAxis y = new NumberAxis();
+        x.setLabel("Значение");
+        y.setLabel("Количество");
+        BarChart<String, Number> barChart = new BarChart<>(x, y);
+        x.setTickLabelRotation(90);
+
+        XYChart.Series<String, Number> ds = new XYChart.Series();
+        for (int i = 0; i < sequenceHashMap.size(); i++) {
+            ds.getData().add(new XYChart.Data<>(value.get(i).toString(), 0));
+        }
+        barChart.getData().add(ds);
+
+        Timeline timeline = new Timeline();
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(500), new EventHandler<>() {
+            int i = 0;
+
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                int value;
+                if (i < sequence.size()) {
+                    value = sequence.get(i);
+                    ObservableList<XYChart.Series<String, Number>> series = barChart.getData();
+                    for (XYChart.Data<String, Number> data : series.get(0).getData()) {
+                        if (parseInt(data.getXValue()) == value) {
+                            Number randomValue = data.getYValue().doubleValue() + (1);
+                            data.setYValue(randomValue);
+                            i++;
+                        }
+                    }
+                } else {
+                    timeline.stop();
+                }
+            }
+        }));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.setAutoReverse(true);
+        timeline.play();
+
+        VBox vBox = new VBox(barChart);
+        Scene scene = new Scene(vBox, 500, 200);
+        Stage primaryStage = new Stage();
+        primaryStage.setScene(scene);
+        primaryStage.setHeight(300);
+        primaryStage.setWidth(400);
+        primaryStage.show();
+    }
+
     @FXML
     void initialize() {
         b_generateSequence.setDisable(true);
@@ -146,6 +235,8 @@ public class HelloController {
                 //showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
             }
             b_generateSequence.setDisable(errorValidationCounter != 0);
+
+
         });
         ta_generatingMatrix.textProperty().addListener(validationGeneratingSequenceListener);
         tf_initialState.textProperty().addListener(validationGeneratingSequenceListener);

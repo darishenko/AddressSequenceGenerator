@@ -57,4 +57,14 @@ public class FileWorker {
             writer.close();
         }
     }
+
+    public static void writeToFile(File file, String sequence) throws IOException {
+        if (file != null) {
+            FileWriter writer = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            bufferedWriter.write(sequence);
+            bufferedWriter.close();
+            writer.close();
+        }
+    }
 }

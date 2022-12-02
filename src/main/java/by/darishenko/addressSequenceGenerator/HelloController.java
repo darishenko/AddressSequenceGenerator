@@ -28,16 +28,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static by.darishenko.addressSequenceGenerator.BinaryConverter.convertBinaryStringsToDigits;
+import static by.darishenko.addressSequenceGenerator.BinaryConverter.convertDigitsToBinaryStrings;
 import static java.lang.Integer.parseInt;
 
 public class HelloController {
+    private final MainGenerator mainGenerator = new MainGenerator(0);
     List<String> generatingMatrixFromFile = null;
     private File file = null;
     private List<String> addressSequence = null;
-
-
+    private boolean canStart = false;
     @FXML
     private TextArea ta_generatingMatrix;
+    @FXML
+    private Label l_initialStateLength;
     @FXML
     private TextField tf_initialState;
     @FXML
@@ -45,7 +49,10 @@ public class HelloController {
     @FXML
     private CheckMenuItem chMI_writeGenerateMatrixToTextArea;
     @FXML
+    private CheckMenuItem chMI_writeAddressSequenceToTextArea;
+    @FXML
     private TextArea ta_generatedAddressSequence;
+
 
     public void showWarningMessage(String Title, String HeaderText, String ContentText) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -55,12 +62,21 @@ public class HelloController {
         alert.showAndWait();
     }
 
-    void writeGeneratingMatrix(List<String> matrix, TextArea textArea) {
+    public void showInformationMessage(String Title,  String ContentText) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(Title);
+        alert.setContentText(ContentText);
+        alert.showAndWait();
+    }
+
+    private void writeGeneratingMatrix(List<String> matrix, TextArea textArea) {
         textArea.clear();
-        for (int i = 0; i < matrix.size() - 1; i++) {
-            textArea.appendText(matrix.get(i) + System.getProperty("line.separator"));
+        if (matrix.size() > 0) {
+            for (int i = 0; i < matrix.size() - 1; i++) {
+                textArea.appendText(matrix.get(i) + System.getProperty("line.separator"));
+            }
+            textArea.appendText(matrix.get(matrix.size() - 1));
         }
-        textArea.appendText(matrix.get(matrix.size() - 1));
     }
 
     @FXML
@@ -78,6 +94,87 @@ public class HelloController {
         }
     }
 
+    private void saveGeneratingMatrixAsToFile() throws IOException {
+        if (ta_generatingMatrix.getText().isEmpty()) {
+            showWarningMessage("Warning", "Файл не сохранен", "Порождающая матрица не заполнена");
+            return;
+        }
+        if (!canStart) {
+            showWarningMessage("Warning", "Файл не сохранен", "Порождающая матрица содержит недопустимые символы");
+            return;
+        }
+
+        if (file != null) {
+            File chosenFile = FileWorker.chooseSingleFileToSave(file.getParent(), file.getName(), "result_");
+            FileWorker.writeToFile(chosenFile, ta_generatingMatrix.getText());
+        } else {
+            String strUserDirectory = System.getProperty("user.dir");
+            File chosenFile = FileWorker.chooseSingleFileToSave(strUserDirectory, ".txt", "");
+            FileWorker.writeToFile(chosenFile, ta_generatingMatrix.getText());
+        }
+    }
+
+    private void saveAddressSequenceAsToFile() throws IOException {
+        if (addressSequence == null || addressSequence.isEmpty()) {
+            showWarningMessage("Warning", "Файл не сохранен", "Адресная последовательность еще не сгенерирована");
+            return;
+        }
+
+        if (file != null) {
+            File chosenFile = FileWorker.chooseSingleFileToSave(file.getParent(), file.getName(), "result_");
+            FileWorker.writeToFile(chosenFile, addressSequence);
+        } else {
+            String strUserDirectory = System.getProperty("user.dir");
+            File chosenFile = FileWorker.chooseSingleFileToSave(strUserDirectory, ".txt", "");
+            FileWorker.writeToFile(chosenFile, addressSequence);
+        }
+    }
+
+    @FXML
+    void saveAsToFile(ActionEvent event) {
+        MenuItem initiator = (MenuItem) event.getSource();
+        String initiatorId = initiator.getId();
+        try {
+            switch (initiatorId) {
+                case "MI_SavePMatrix" -> saveGeneratingMatrixAsToFile();
+                case "MI_saveAdrSequence" -> saveAddressSequenceAsToFile();
+            }
+        } catch (IOException e) {
+            showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
+        }
+    }
+
+    @FXML
+    void saveToFile(ActionEvent event) throws IOException {
+        MenuItem initiator = (MenuItem) event.getSource();
+        String initiatorId = initiator.getId();
+
+        if (file != null) {
+            try {
+                switch (initiatorId) {
+                    case "MI_SavePMatrix" -> {
+                        if (canStart) {
+                            FileWorker.writeToFile(file, ta_generatingMatrix.getText());
+                        } else {
+                            showWarningMessage("Warning", "Файл не сохранен", "Порождающая матрица содержит недопустимые символы");
+                        }
+                    }
+                    case "MI_saveAdrSequence" -> {
+                        if (addressSequence != null && !addressSequence.isEmpty()) {
+                            FileWorker.writeToFile(file, addressSequence);
+                        } else {
+                            showWarningMessage("Warning", "Файл не сохранен", "Адресная последовательность еще не сгенерирована");
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
+            }
+        } else {
+            saveAsToFile(event);
+        }
+    }
+
     @FXML
     void GenerateSequence() {
         List<String> generatingMatrix;
@@ -88,59 +185,37 @@ public class HelloController {
             generatingMatrix = generatingMatrixFromFile;
         }
 
-        String initialState = Validator.removeSpacesFromLine(tf_initialState.getText());
-        MainGenerator mainGenerator;
-        try {
-            if (initialState.isEmpty()) {
-                mainGenerator = new MainGenerator(generatingMatrix.size());
-            } else {
-                mainGenerator = new MainGenerator(generatingMatrix.size(), BinaryConverter.convertBinaryStringToDigit(initialState));
-            }
-            List<Integer> generatedAddressSequence;
-            generatedAddressSequence = mainGenerator.generateSequence(BinaryConverter.convertBinaryStringsToDigits(generatingMatrix));
-            addressSequence = BinaryConverter.convertDigitsToBinaryStrings(generatedAddressSequence, initialState.length());
-            ta_generatedAddressSequence.clear();
-            writeGeneratingMatrix(addressSequence, ta_generatedAddressSequence);
-            System.out.println(generatedAddressSequence);
-
-
-            createGistogramm(generatedAddressSequence);
-        } catch (MyException e) {
-            showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
-        }
-    }
-
-    @FXML
-    void saveAsToFile() throws IOException {
-        if (file != null) {
+        if (generatingMatrixFromFile != null || generatingMatrix != null || !generatingMatrix.isEmpty()) {
+            String initialState = Validator.removeSpacesFromLine(tf_initialState.getText());
             try {
-                File chosenFile = FileWorker.chooseSingleFileToSave(file.getParent(), file.getName(), "result_");
-                FileWorker.writeToFile(chosenFile, addressSequence);
-            } catch (IOException e) {
-                showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
+                mainGenerator.setLength(generatingMatrix.size());
+                if (initialState.isEmpty()) {
+                    mainGenerator.setInitialState(0);
+                } else {
+                    mainGenerator.setInitialState(BinaryConverter.convertBinaryStringToDigit(initialState));
+                }
+                List<Integer> generatedAddressSequence;
+                generatedAddressSequence = mainGenerator.generateSequence(convertBinaryStringsToDigits(generatingMatrix));
+                addressSequence = convertDigitsToBinaryStrings(generatedAddressSequence, initialState.length());
+                ta_generatedAddressSequence.clear();
+                if (chMI_writeAddressSequenceToTextArea.isSelected()) {
+                    writeGeneratingMatrix(addressSequence, ta_generatedAddressSequence);
+                }else{
+                    showInformationMessage("Процесс завершен", "Адресная последовательность сгенерирована и готова к сохранению");
+                }
+
+                createBarChar(generatedAddressSequence);
+            } catch (MyException e) {
+                showWarningMessage(e.getMessage(), e.getMessageCorrection(), e.getMessageAdvice());
             }
         } else {
-            String strUserDirectory = System.getProperty("user.dir");
-            File chosenFile = FileWorker.chooseSingleFileToSave(strUserDirectory, ".txt", "");
-            FileWorker.writeToFile(chosenFile, addressSequence);
+            showWarningMessage("Warning", "Порождающая матрица пустая", "Выберете файл с порождающей матрицей");
         }
     }
 
-    @FXML
-    void saveToFile(ActionEvent event) throws IOException {
-        if (file != null) {
-            try {
-                FileWorker.writeToFile(file, addressSequence);
-                System.out.println(addressSequence);
-            } catch (IOException e) {
-                showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
-            }
-        } else {
-            saveAsToFile();
-        }
-    }
 
-    private void createGistogramm(List<Integer> sequence) {
+    //#todo
+    private void createBarChar(List<Integer> sequence) {
         HashMap<Integer, Integer> sequenceHashMap = new HashMap<>();
         for (int elem : sequence) {
             if (!sequenceHashMap.containsKey(elem)) {
@@ -150,8 +225,9 @@ public class HelloController {
             }
         }
         ArrayList<Integer> valueTimes = new ArrayList<>(sequenceHashMap.values());
-        ArrayList<Integer> value = new ArrayList<>(sequenceHashMap.keySet());
+        ArrayList<Integer> values = new ArrayList<>(sequenceHashMap.keySet());
         Collections.sort(valueTimes);
+        Collections.sort(values);
         int maxY = valueTimes.get(valueTimes.size() - 1);
         //
         System.out.println(maxY);
@@ -166,14 +242,15 @@ public class HelloController {
         BarChart<String, Number> barChart = new BarChart<>(x, y);
         x.setTickLabelRotation(90);
 
+
         XYChart.Series<String, Number> ds = new XYChart.Series();
         for (int i = 0; i < sequenceHashMap.size(); i++) {
-            ds.getData().add(new XYChart.Data<>(value.get(i).toString(), 0));
+            ds.getData().add(new XYChart.Data<>(values.get(i).toString(), 0));
         }
         barChart.getData().add(ds);
 
         Timeline timeline = new Timeline();
-        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(500), new EventHandler<>() {
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1), new EventHandler<>() {
             int i = 0;
 
             @Override
@@ -184,8 +261,9 @@ public class HelloController {
                     ObservableList<XYChart.Series<String, Number>> series = barChart.getData();
                     for (XYChart.Data<String, Number> data : series.get(0).getData()) {
                         if (parseInt(data.getXValue()) == value) {
-                            Number randomValue = data.getYValue().doubleValue() + (1);
+                            Number randomValue = data.getYValue().doubleValue() + 1;
                             data.setYValue(randomValue);
+                            ds.setName(Integer.toString(value));
                             i++;
                         }
                     }
@@ -234,15 +312,23 @@ public class HelloController {
             } catch (StackOverflowError e) {
                 //showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
             }
+
             b_generateSequence.setDisable(errorValidationCounter != 0);
-
-
+            canStart = (errorValidationCounter == 0);
         });
         ta_generatingMatrix.textProperty().addListener(validationGeneratingSequenceListener);
         tf_initialState.textProperty().addListener(validationGeneratingSequenceListener);
 
         chMI_writeGenerateMatrixToTextArea.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
-            b_generateSequence.setDisable(!aBoolean);
+            b_generateSequence.setDisable(false);
+            ta_generatingMatrix.setDisable(aBoolean);
+        });
+        chMI_writeAddressSequenceToTextArea.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
+            ta_generatedAddressSequence.setDisable(aBoolean);
+        });
+
+        tf_initialState.textProperty().addListener((observable, oldValue, newValue) -> {
+            l_initialStateLength.setText(String.valueOf(newValue.length()));
         });
 
     }

@@ -1,15 +1,22 @@
 package by.darishenko.addressSequenceGenerator;
 
+import by.darishenko.addressSequenceGenerator.exception.MyException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class BinaryConverter {
 
-    public static int convertBinaryStringToDigit(String string) {
-        return Integer.parseInt(string, 2);
+    public static int convertBinaryStringToDigit(String string) throws MyException {
+        try {
+            return Integer.parseInt(string, 2);
+        }catch (NumberFormatException e){
+            throw new MyException("Warning", "Ошибка генерации адресной последовательности", "Адресная " +
+                    "последовательность содержит недопустимые символы");
+        }
     }
 
-    public static List<Integer> convertBinaryStringsToDigits(List<String> strings) {
+    public static List<Integer> convertBinaryStringsToDigits(List<String> strings) throws MyException{
         List<Integer> result = new ArrayList<>();
         for (String string : strings) {
             result.add(convertBinaryStringToDigit(string));

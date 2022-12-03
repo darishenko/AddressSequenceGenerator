@@ -2,42 +2,42 @@ package by.darishenko.addressSequenceGenerator;
 
 import by.darishenko.addressSequenceGenerator.exception.MyException;
 import by.darishenko.addressSequenceGenerator.generator.MainGenerator;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import static by.darishenko.addressSequenceGenerator.BinaryConverter.convertBinaryStringsToDigits;
 import static by.darishenko.addressSequenceGenerator.BinaryConverter.convertDigitsToBinaryStrings;
-import static java.lang.Integer.parseInt;
 
 public class HelloController {
+    private List<Stage> childStages = new ArrayList<>();
+
     private final MainGenerator mainGenerator = new MainGenerator(0);
     List<String> generatingMatrixFromFile = null;
     private File file = null;
     private List<String> addressSequence = null;
     private boolean canStart = false;
+
+    public int getAnimationSpeed() {
+        return animationSpeed;
+    }
+
+    public void setAnimationSpeed(int animationSpeed) {
+        this.animationSpeed = animationSpeed;
+    }
+
+    private int animationSpeed = 100;
     @FXML
     private TextArea ta_generatingMatrix;
     @FXML
@@ -54,6 +54,7 @@ public class HelloController {
     private TextArea ta_generatedAddressSequence;
 
 
+
     public void showWarningMessage(String Title, String HeaderText, String ContentText) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(Title);
@@ -62,7 +63,7 @@ public class HelloController {
         alert.showAndWait();
     }
 
-    public void showInformationMessage(String Title,  String ContentText) {
+    public void showInformationMessage(String Title, String ContentText) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(Title);
         alert.setContentText(ContentText);
@@ -176,7 +177,7 @@ public class HelloController {
     }
 
     @FXML
-    void GenerateSequence() {
+    void GenerateSequence() throws IOException {
         List<String> generatingMatrix;
         if (chMI_writeGenerateMatrixToTextArea.isSelected()) {
             String ta_generatingMatrixText = Validator.removeSpacesFromLine(ta_generatingMatrix.getText());
@@ -185,7 +186,7 @@ public class HelloController {
             generatingMatrix = generatingMatrixFromFile;
         }
 
-        if (generatingMatrixFromFile != null || generatingMatrix != null || !generatingMatrix.isEmpty()) {
+        if (generatingMatrixFromFile != null || (generatingMatrix != null && !generatingMatrix.isEmpty()) ) {
             String initialState = Validator.removeSpacesFromLine(tf_initialState.getText());
             try {
                 mainGenerator.setLength(generatingMatrix.size());
@@ -200,11 +201,23 @@ public class HelloController {
                 ta_generatedAddressSequence.clear();
                 if (chMI_writeAddressSequenceToTextArea.isSelected()) {
                     writeGeneratingMatrix(addressSequence, ta_generatedAddressSequence);
-                }else{
+                } else {
                     showInformationMessage("Процесс завершен", "Адресная последовательность сгенерирована и готова к сохранению");
                 }
 
-                createBarChar(generatedAddressSequence);
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(getClass().getResource("addressSequenceCharBar.fxml"));
+                loader.load();
+                Parent root = loader.getRoot();
+                AddressSequenceCharBarController children = loader.getController();
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+
+                children.setBarChart_AddressSequence(generatedAddressSequence, animationSpeed);
+                childStages.add(stage);
+                stage.showAndWait();
+
+
             } catch (MyException e) {
                 showWarningMessage(e.getMessage(), e.getMessageCorrection(), e.getMessageAdvice());
             }
@@ -213,76 +226,31 @@ public class HelloController {
         }
     }
 
+    @FXML
+    void setAnimationSpeed(){
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("setAnimationSpeed.fxml"));
+            loader.load();
+            Parent root = loader.getRoot();
+            SetAnimationSpeedController children = loader.getController();
+            children.setParent(this);
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            children.setStage(stage);
+            childStages.add(stage);
+            children.setCurrentAnimationSpeed(animationSpeed);
+            stage.showAndWait();
 
-    //#todo
-    private void createBarChar(List<Integer> sequence) {
-        HashMap<Integer, Integer> sequenceHashMap = new HashMap<>();
-        for (int elem : sequence) {
-            if (!sequenceHashMap.containsKey(elem)) {
-                sequenceHashMap.put(elem, 1);
-            } else {
-                sequenceHashMap.put(elem, sequenceHashMap.get(elem) + 1);
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        ArrayList<Integer> valueTimes = new ArrayList<>(sequenceHashMap.values());
-        ArrayList<Integer> values = new ArrayList<>(sequenceHashMap.keySet());
-        Collections.sort(valueTimes);
-        Collections.sort(values);
-        int maxY = valueTimes.get(valueTimes.size() - 1);
-        //
-        System.out.println(maxY);
-        System.out.println(valueTimes);
-        System.out.println(sequenceHashMap);
-        //
+    }
 
-        CategoryAxis x = new CategoryAxis();
-        NumberAxis y = new NumberAxis();
-        x.setLabel("Значение");
-        y.setLabel("Количество");
-        BarChart<String, Number> barChart = new BarChart<>(x, y);
-        x.setTickLabelRotation(90);
-
-
-        XYChart.Series<String, Number> ds = new XYChart.Series();
-        for (int i = 0; i < sequenceHashMap.size(); i++) {
-            ds.getData().add(new XYChart.Data<>(values.get(i).toString(), 0));
-        }
-        barChart.getData().add(ds);
-
-        Timeline timeline = new Timeline();
-        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1), new EventHandler<>() {
-            int i = 0;
-
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                int value;
-                if (i < sequence.size()) {
-                    value = sequence.get(i);
-                    ObservableList<XYChart.Series<String, Number>> series = barChart.getData();
-                    for (XYChart.Data<String, Number> data : series.get(0).getData()) {
-                        if (parseInt(data.getXValue()) == value) {
-                            Number randomValue = data.getYValue().doubleValue() + 1;
-                            data.setYValue(randomValue);
-                            ds.setName(Integer.toString(value));
-                            i++;
-                        }
-                    }
-                } else {
-                    timeline.stop();
-                }
+    protected void closeAll() {
+            for (Stage stage : childStages){
+                stage.close();
             }
-        }));
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.setAutoReverse(true);
-        timeline.play();
-
-        VBox vBox = new VBox(barChart);
-        Scene scene = new Scene(vBox, 500, 200);
-        Stage primaryStage = new Stage();
-        primaryStage.setScene(scene);
-        primaryStage.setHeight(300);
-        primaryStage.setWidth(400);
-        primaryStage.show();
     }
 
     @FXML

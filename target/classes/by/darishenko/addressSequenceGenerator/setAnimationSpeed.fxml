@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="140.0" prefWidth="381.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.darishenko.addressSequenceGenerator.SetAnimationSpeedController">
+   <center>
+      <TextField fx:id="tf_animationSpeed" prefHeight="25.0" prefWidth="225.0" promptText="текущее значение " BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets left="50.0" right="50.0" />
+         </BorderPane.margin>
+      </TextField>
+   </center>
+   <bottom>
+      <Button fx:id="b_setAnimationSpeed" mnemonicParsing="false" onAction="#setAnimationSpeed" text="Установить" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="15.0" />
+         </BorderPane.margin>
+      </Button>
+   </bottom>
+   <top>
+      <BorderPane prefHeight="23.0" prefWidth="381.0" BorderPane.alignment="CENTER">
+         <top>
+            <Label text="Введите значение обновления анимации в мс " BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets top="25.0" />
+               </BorderPane.margin>
+            </Label>
+         </top>
+         <center>
+            <Label fx:id="lb_currentAnimationSpeed" text="Текущее значение" textFill="#0000008f" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="11.0" />
+               </font>
+            </Label>
+         </center>
+      </BorderPane>
+   </top>
+</BorderPane>

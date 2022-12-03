@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="672.0" prefWidth="722.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.darishenko.addressSequenceGenerator.HelloController">
+<AnchorPane prefHeight="672.0" prefWidth="722.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.darishenko.addressSequenceGenerator.HelloController">
    <children>
       <BorderPane prefHeight="672.0" prefWidth="387.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
@@ -14,6 +23,7 @@
                   <Menu mnemonicParsing="false" text="Порождающая матрица">
                      <items>
                         <MenuItem mnemonicParsing="false" onAction="#openFile" text="Открыть файл" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="MI_SavePMatrix" mnemonicParsing="false" onAction="#saveToFile" text="Сохранить" />
                         <MenuItem fx:id="MI_SavePMatrix" mnemonicParsing="false" onAction="#saveAsToFile" text="Сохранить как" />
                      </items>
@@ -26,8 +36,10 @@
                   </Menu>
                   <Menu mnemonicParsing="false" text="Настройки">
                     <items>
-                        <CheckMenuItem fx:id="chMI_writeGenerateMatrixToTextArea" mnemonicParsing="false" selected="true" text="Заполнять текстовое поле со сгенерируемой адресной последовательностью" />
-                        <CheckMenuItem fx:id="chMI_writeAddressSequenceToTextArea" mnemonicParsing="false" selected="true" text="Заполнять текстовое поле с порождающей матрицей при чтении ее из файла" />
+                        <CheckMenuItem fx:id="chMI_writeGenerateMatrixToTextArea" mnemonicParsing="false" selected="true" text="Выводить порождающую матрицу" />
+                        <CheckMenuItem fx:id="chMI_writeAddressSequenceToTextArea" mnemonicParsing="false" selected="true" text="Выводить адресную последовательность" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                      <MenuItem fx:id="b_setAnimationSpeed" mnemonicParsing="false" onAction="#setAnimationSpeed" text="Установить скорость анимации" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Справка">

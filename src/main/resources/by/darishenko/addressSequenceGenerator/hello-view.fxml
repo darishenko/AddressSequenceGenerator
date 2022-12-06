@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="672.0" prefWidth="722.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.darishenko.addressSequenceGenerator.HelloController">
+<AnchorPane maxWidth="800.0" minWidth="400.0" prefHeight="650.0" prefWidth="551.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.darishenko.addressSequenceGenerator.HelloController">
    <children>
       <BorderPane prefHeight="672.0" prefWidth="387.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
@@ -91,7 +91,7 @@
                   <Insets left="10.0" />
                </BorderPane.margin>
                <right>
-                  <BorderPane prefHeight="543.0" prefWidth="287.0" BorderPane.alignment="CENTER" />
+                  <BorderPane prefHeight="400.0" prefWidth="287.0" BorderPane.alignment="CENTER" />
                </right>
                <left>
                   <BorderPane prefHeight="543.0" prefWidth="277.0" BorderPane.alignment="CENTER">

@@ -25,7 +25,16 @@ public class SetAnimationSpeedController {
     private TextField tf_animationSpeed;
     @FXML
     public Label lb_currentAnimationSpeed;
+
     private Stage stage;
+
+    public boolean getIsResizable() {
+        return false;
+    }
+
+    public String getTitle() {
+        return "Настройка скорости анимации";
+    }
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -48,7 +57,6 @@ public class SetAnimationSpeedController {
 
     @FXML
     void initialize() {
-
         ChangeListener<String> validateAnimationSpeed = ((observable, oldValue, newValue) -> {
             int errorValidationCounter = 0;
             int value = 0;

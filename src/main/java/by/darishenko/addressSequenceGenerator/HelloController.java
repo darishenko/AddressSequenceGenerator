@@ -210,10 +210,13 @@ public class HelloController {
                 loader.load();
                 Parent root = loader.getRoot();
                 AddressSequenceCharBarController children = loader.getController();
+                children.setAddressSequence(generatedAddressSequence);
+                children.setAnimationSpeed(animationSpeed);
+
                 Stage stage = new Stage();
                 stage.setScene(new Scene(root));
 
-                children.setBarChart_AddressSequence(generatedAddressSequence, animationSpeed);
+                children.startAnimationAtFirst();
                 childStages.add(stage);
                 stage.showAndWait();
 
@@ -236,6 +239,8 @@ public class HelloController {
             SetAnimationSpeedController children = loader.getController();
             children.setParent(this);
             Stage stage = new Stage();
+            stage.setTitle(children.getTitle());
+            stage.setResizable(children.getIsResizable());
             stage.setScene(new Scene(root));
             children.setStage(stage);
             childStages.add(stage);

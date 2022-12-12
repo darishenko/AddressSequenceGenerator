@@ -1,8 +1,9 @@
-package by.darishenko.addressSequenceGenerator;
+package by.darishenko.addressSequenceGenerator.controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import by.darishenko.addressSequenceGenerator.MainController;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -11,7 +12,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class SetAnimationSpeedController {
-    private HelloController parent;
 
     @FXML
     private ResourceBundle resources;
@@ -27,6 +27,7 @@ public class SetAnimationSpeedController {
     public Label lb_currentAnimationSpeed;
 
     private Stage stage;
+    private MainController parent;
 
     public boolean getIsResizable() {
         return false;
@@ -40,7 +41,7 @@ public class SetAnimationSpeedController {
         this.stage = stage;
     }
 
-    public void setParent(HelloController parent) {
+    public void setParent(MainController parent) {
         this.parent = parent;
     }
 

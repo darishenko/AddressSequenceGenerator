@@ -1,5 +1,6 @@
-package by.darishenko.addressSequenceGenerator;
+package by.darishenko.addressSequenceGenerator.controller;
 
+import by.darishenko.addressSequenceGenerator.MainController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -14,6 +15,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.image.WritableImage;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -36,11 +38,31 @@ public class AddressSequenceCharBarController {
     private Button b_startAnimationAgain;
     @FXML
     private Button b_stopAnimation;
+
+    private Stage stage;
+    private MainController parent;
+
     private Timeline timeline;
     private boolean isStopped;
     private int uniqueSequenceValuesCount;
     private ArrayList<Integer> sequenceValues;
     public XYChart.Series<String, Number> dataSeries = new XYChart.Series();
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void setParent(MainController parent) {
+        this.parent = parent;
+    }
+
+    public String getTitle() {
+        return "Генерирование адресной последовательности";
+    }
+
+    public boolean getIsResizable() {
+        return true;
+    }
 
     public void setAnimationSpeed(int animationSpeed) {
         this.animationSpeed = animationSpeed;

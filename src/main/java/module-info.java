@@ -16,4 +16,10 @@ module by.darishenko.addresssequencegenerator {
     opens by.darishenko.addressSequenceGenerator.generator to javafx.fxml;
     exports by.darishenko.addressSequenceGenerator.exception;
     opens by.darishenko.addressSequenceGenerator.exception to javafx.fxml;
+    exports by.darishenko.addressSequenceGenerator.controller;
+    opens by.darishenko.addressSequenceGenerator.controller to javafx.fxml;
+    exports by.darishenko.addressSequenceGenerator.converter;
+    opens by.darishenko.addressSequenceGenerator.converter to javafx.fxml;
+    exports by.darishenko.addressSequenceGenerator.validator;
+    opens by.darishenko.addressSequenceGenerator.validator to javafx.fxml;
 }

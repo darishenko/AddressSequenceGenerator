@@ -1,4 +1,4 @@
-package by.darishenko.addressSequenceGenerator;
+package by.darishenko.addressSequenceGenerator.converter;
 
 import by.darishenko.addressSequenceGenerator.exception.MyException;
 

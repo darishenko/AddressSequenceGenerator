@@ -1,7 +1,11 @@
 package by.darishenko.addressSequenceGenerator;
 
+import by.darishenko.addressSequenceGenerator.controller.AddressSequenceCharBarController;
+import by.darishenko.addressSequenceGenerator.controller.SetAnimationSpeedController;
+import by.darishenko.addressSequenceGenerator.converter.BinaryConverter;
 import by.darishenko.addressSequenceGenerator.exception.MyException;
 import by.darishenko.addressSequenceGenerator.generator.MainGenerator;
+import by.darishenko.addressSequenceGenerator.validator.StringValidator;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,14 +17,13 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import static by.darishenko.addressSequenceGenerator.BinaryConverter.convertBinaryStringsToDigits;
-import static by.darishenko.addressSequenceGenerator.BinaryConverter.convertDigitsToBinaryStrings;
+import static by.darishenko.addressSequenceGenerator.converter.BinaryConverter.convertBinaryStringsToDigits;
+import static by.darishenko.addressSequenceGenerator.converter.BinaryConverter.convertDigitsToBinaryStrings;
 
-public class HelloController {
+public class MainController {
     private List<Stage> childStages = new ArrayList<>();
 
     private final MainGenerator mainGenerator = new MainGenerator(0);
@@ -38,6 +41,9 @@ public class HelloController {
     }
 
     private int animationSpeed = 100;
+
+    @FXML
+    private Label L_openFile;
     @FXML
     private TextArea ta_generatingMatrix;
     @FXML
@@ -86,6 +92,7 @@ public class HelloController {
             file = FileWorker.chooseSingleFileToOpen("Текстовый файл", "txt");
             if (file != null) {
                 generatingMatrixFromFile = FileWorker.readFileLines(file);
+                L_openFile.setText("Открытый файл " + file.getName());
                 if (chMI_writeGenerateMatrixToTextArea.isSelected()) {
                     writeGeneratingMatrix(generatingMatrixFromFile, ta_generatingMatrix);
                 }
@@ -176,18 +183,23 @@ public class HelloController {
         }
     }
 
+    private int findMaxLength(List<String> generatingMatrix){
+        String maxElement = Collections.max(generatingMatrix, Comparator.comparing(String::length));
+        return maxElement.length();
+    }
+
     @FXML
     void GenerateSequence() throws IOException {
         List<String> generatingMatrix;
         if (chMI_writeGenerateMatrixToTextArea.isSelected()) {
-            String ta_generatingMatrixText = Validator.removeSpacesFromLine(ta_generatingMatrix.getText());
+            String ta_generatingMatrixText = StringValidator.removeSpacesFromLine(ta_generatingMatrix.getText());
             generatingMatrix = List.of(ta_generatingMatrixText.split("[\n]+"));
         } else {
             generatingMatrix = generatingMatrixFromFile;
         }
 
         if (generatingMatrixFromFile != null || (generatingMatrix != null && !generatingMatrix.isEmpty()) ) {
-            String initialState = Validator.removeSpacesFromLine(tf_initialState.getText());
+            String initialState = StringValidator.removeSpacesFromLine(tf_initialState.getText());
             try {
                 mainGenerator.setLength(generatingMatrix.size());
                 if (initialState.isEmpty()) {
@@ -197,7 +209,7 @@ public class HelloController {
                 }
                 List<Integer> generatedAddressSequence;
                 generatedAddressSequence = mainGenerator.generateSequence(convertBinaryStringsToDigits(generatingMatrix));
-                addressSequence = convertDigitsToBinaryStrings(generatedAddressSequence, initialState.length());
+                addressSequence = convertDigitsToBinaryStrings(generatedAddressSequence, findMaxLength(generatingMatrix));
                 ta_generatedAddressSequence.clear();
                 if (chMI_writeAddressSequenceToTextArea.isSelected()) {
                     writeGeneratingMatrix(addressSequence, ta_generatedAddressSequence);
@@ -210,16 +222,17 @@ public class HelloController {
                 loader.load();
                 Parent root = loader.getRoot();
                 AddressSequenceCharBarController children = loader.getController();
+                children.setParent(this);
                 children.setAddressSequence(generatedAddressSequence);
                 children.setAnimationSpeed(animationSpeed);
-
                 Stage stage = new Stage();
+                stage.setTitle(children.getTitle());
+                stage.setResizable(children.getIsResizable());
                 stage.setScene(new Scene(root));
-
+                children.setStage(stage);
                 children.startAnimationAtFirst();
                 childStages.add(stage);
                 stage.showAndWait();
-
 
             } catch (MyException e) {
                 showWarningMessage(e.getMessage(), e.getMessageCorrection(), e.getMessageAdvice());

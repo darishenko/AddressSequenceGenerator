@@ -1,6 +1,6 @@
-package by.darishenko.addressSequenceGenerator;
+package by.darishenko.addressSequenceGenerator.validator;
 
-public class Validator {
+public class StringValidator {
     public static String removeSpacesFromLine(String string) {
         return string.replace("\s", "");
     }

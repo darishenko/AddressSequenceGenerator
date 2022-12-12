@@ -14,11 +14,11 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxWidth="800.0" minWidth="400.0" prefHeight="650.0" prefWidth="551.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.darishenko.addressSequenceGenerator.HelloController">
+<AnchorPane maxWidth="800.0" minWidth="400.0" prefHeight="650.0" prefWidth="551.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.darishenko.addressSequenceGenerator.MainController">
    <children>
       <BorderPane prefHeight="672.0" prefWidth="387.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
-            <MenuBar BorderPane.alignment="CENTER">
+            <MenuBar prefHeight="25.0" prefWidth="604.0" BorderPane.alignment="CENTER">
                <menus>
                   <Menu mnemonicParsing="false" text="Порождающая матрица">
                      <items>
@@ -51,7 +51,7 @@
             </MenuBar>
          </top>
          <left>
-            <BorderPane prefHeight="647.0" prefWidth="547.0" BorderPane.alignment="CENTER">
+            <BorderPane prefHeight="625.0" prefWidth="540.0" BorderPane.alignment="CENTER">
                <top>
                   <BorderPane prefHeight="58.0" prefWidth="264.0" BorderPane.alignment="CENTER">
                      <top>
@@ -82,6 +82,9 @@
                            </right>
                         </BorderPane>
                      </left>
+                     <right>
+                        <Label fx:id="L_openFile" BorderPane.alignment="CENTER" />
+                     </right>
                   </BorderPane>
                </top>
                <padding>
@@ -91,7 +94,7 @@
                   <Insets left="10.0" />
                </BorderPane.margin>
                <right>
-                  <BorderPane prefHeight="400.0" prefWidth="287.0" BorderPane.alignment="CENTER" />
+                  <BorderPane prefHeight="567.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
                </right>
                <left>
                   <BorderPane prefHeight="543.0" prefWidth="277.0" BorderPane.alignment="CENTER">

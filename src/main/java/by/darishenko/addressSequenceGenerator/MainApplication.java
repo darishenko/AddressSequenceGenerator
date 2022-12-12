@@ -9,7 +9,7 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application {
+public class MainApplication extends Application {
 
     public static void main(String[] args) {
         launch();
@@ -17,7 +17,7 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 
         stage.setTitle("Генератор адресных последовательностей");
@@ -26,7 +26,7 @@ public class HelloApplication extends Application {
 
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent we) {
-                HelloController controller = fxmlLoader.getController();
+                MainController controller = fxmlLoader.getController();
                 controller.closeAll();
             }
         });

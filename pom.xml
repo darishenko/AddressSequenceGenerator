@@ -123,7 +123,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                by.darishenko.addresssequencegenerator/by.darishenko.addressSequenceGenerator.HelloApplication
+                                by.darishenko.addresssequencegenerator/by.darishenko.addressSequenceGenerator.MainApplication
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

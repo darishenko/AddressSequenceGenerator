@@ -40,9 +40,10 @@ public class MainGenerator {
         List<Integer> result = new ArrayList<>();
         SwitchingSequenceGenerator switchingSequenceGenerator = new SwitchingSequenceGenerator(length);
         List<Integer> switchMatrix = switchingSequenceGenerator.generateSequence();
-        int currState = initialState;
 
+        int currState = initialState;
         result.add(currState);
+
         for (int i = 0; i < Math.pow(2, length) - 1; i++) {
             currState = currState ^ generatingMatrix.get(switchMatrix.get(i));
             result.add(currState);

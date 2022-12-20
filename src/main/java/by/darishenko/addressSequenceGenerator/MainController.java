@@ -29,7 +29,8 @@ public class MainController {
     private final MainGenerator mainGenerator = new MainGenerator(0);
     List<String> generatingMatrixFromFile = null;
     private File file = null;
-    private List<String> addressSequence = null;
+    private List<String> binaryAddressSequence = null;
+    private List<Integer> decimalAddressSequence = null;
     private boolean canStart = false;
 
     public int getAnimationSpeed() {
@@ -114,27 +115,31 @@ public class MainController {
 
         if (file != null) {
             File chosenFile = FileWorker.chooseSingleFileToSave(file.getParent(), file.getName(), "result_");
-            FileWorker.writeToFile(chosenFile, ta_generatingMatrix.getText());
+            FileWorker.writeToFileBinary(chosenFile, ta_generatingMatrix.getText());
         } else {
             String strUserDirectory = System.getProperty("user.dir");
             File chosenFile = FileWorker.chooseSingleFileToSave(strUserDirectory, ".txt", "");
-            FileWorker.writeToFile(chosenFile, ta_generatingMatrix.getText());
+            FileWorker.writeToFileBinary(chosenFile, ta_generatingMatrix.getText());
         }
     }
 
     private void saveAddressSequenceAsToFile() throws IOException {
-        if (addressSequence == null || addressSequence.isEmpty()) {
+        if (binaryAddressSequence == null || binaryAddressSequence.isEmpty()) {
             showWarningMessage("Warning", "Файл не сохранен", "Адресная последовательность еще не сгенерирована");
             return;
         }
 
         if (file != null) {
-            File chosenFile = FileWorker.chooseSingleFileToSave(file.getParent(), file.getName(), "result_");
-            FileWorker.writeToFile(chosenFile, addressSequence);
+            File chosenFile = FileWorker.chooseSingleFileToSave(file.getParent(), file.getName(), "2_result_");
+            FileWorker.writeToFileBinary(chosenFile, binaryAddressSequence);
+            chosenFile = FileWorker.chooseSingleFileToSave(file.getParent(), file.getName(), "10_result_");
+            FileWorker.writeToFileDecimal(chosenFile, decimalAddressSequence);
         } else {
             String strUserDirectory = System.getProperty("user.dir");
-            File chosenFile = FileWorker.chooseSingleFileToSave(strUserDirectory, ".txt", "");
-            FileWorker.writeToFile(chosenFile, addressSequence);
+            File chosenFile = FileWorker.chooseSingleFileToSave(strUserDirectory, ".txt", "2_result_");
+            FileWorker.writeToFileBinary(chosenFile, binaryAddressSequence);
+            chosenFile = FileWorker.chooseSingleFileToSave(strUserDirectory, ".txt", "10_result_");
+            FileWorker.writeToFileDecimal(chosenFile, decimalAddressSequence);
         }
     }
 
@@ -162,14 +167,17 @@ public class MainController {
                 switch (initiatorId) {
                     case "MI_SavePMatrix" -> {
                         if (canStart) {
-                            FileWorker.writeToFile(file, ta_generatingMatrix.getText());
+                            FileWorker.writeToFileBinary(file, ta_generatingMatrix.getText());
                         } else {
                             showWarningMessage("Warning", "Файл не сохранен", "Порождающая матрица содержит недопустимые символы");
                         }
                     }
                     case "MI_saveAdrSequence" -> {
-                        if (addressSequence != null && !addressSequence.isEmpty()) {
-                            FileWorker.writeToFile(file, addressSequence);
+                        if (binaryAddressSequence != null && !binaryAddressSequence.isEmpty()) {
+                            File binaryFile = new File(file.getParent(), "2_result_"+ file.getName());
+                            FileWorker.writeToFileBinary(binaryFile, binaryAddressSequence);
+                            File decimalFile = new File(file.getParent(), "10_result_"+ file.getName());
+                            FileWorker.writeToFileDecimal(decimalFile, decimalAddressSequence);
                         } else {
                             showWarningMessage("Warning", "Файл не сохранен", "Адресная последовательность еще не сгенерирована");
                         }
@@ -207,12 +215,19 @@ public class MainController {
                 } else {
                     mainGenerator.setInitialState(BinaryConverter.convertBinaryStringToDigit(initialState));
                 }
-                List<Integer> generatedAddressSequence;
-                generatedAddressSequence = mainGenerator.generateSequence(convertBinaryStringsToDigits(generatingMatrix));
-                addressSequence = convertDigitsToBinaryStrings(generatedAddressSequence, findMaxLength(generatingMatrix));
+
+                decimalAddressSequence = mainGenerator.generateSequence(convertBinaryStringsToDigits(generatingMatrix));
+                int maxElemLength = findMaxLength(generatingMatrix);
+
+                if (maxElemLength > generatingMatrix.size()){
+                    showWarningMessage("Warning", "Порождающая матрица некорректна", "Число строк не может быть меньше числа столбцов");
+                    return;
+                }
+
+                binaryAddressSequence = convertDigitsToBinaryStrings(decimalAddressSequence, maxElemLength);
                 ta_generatedAddressSequence.clear();
                 if (chMI_writeAddressSequenceToTextArea.isSelected()) {
-                    writeGeneratingMatrix(addressSequence, ta_generatedAddressSequence);
+                    writeGeneratingMatrix(binaryAddressSequence, ta_generatedAddressSequence);
                 } else {
                     showInformationMessage("Процесс завершен", "Адресная последовательность сгенерирована и готова к сохранению");
                 }
@@ -223,7 +238,7 @@ public class MainController {
                 Parent root = loader.getRoot();
                 AddressSequenceCharBarController children = loader.getController();
                 children.setParent(this);
-                children.setAddressSequence(generatedAddressSequence);
+                children.setAddressSequence(decimalAddressSequence);
                 children.setAnimationSpeed(animationSpeed);
                 Stage stage = new Stage();
                 stage.setTitle(children.getTitle());
@@ -296,7 +311,7 @@ public class MainController {
                     }
                 }
             } catch (StackOverflowError e) {
-                //showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
+                showWarningMessage("Warning", "Файл не сохранен", "Повторите попытку");
             }
 
             b_generateSequence.setDisable(errorValidationCounter != 0);

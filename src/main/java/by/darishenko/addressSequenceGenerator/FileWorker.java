@@ -42,11 +42,10 @@ public class FileWorker {
                 fileLines.add(currentString);
             }
         }
-        System.out.println(Arrays.toString(fileLines.toArray()));
         return fileLines;
     }
 
-    public static void writeToFile(File file, List<String> sequence) throws IOException {
+    public static void writeToFileBinary(File file, List<String> sequence) throws IOException {
         if (file != null) {
             FileWriter writer = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
@@ -58,7 +57,19 @@ public class FileWorker {
         }
     }
 
-    public static void writeToFile(File file, String sequence) throws IOException {
+    public static void writeToFileDecimal(File file, List<Integer> sequence) throws IOException {
+        if (file != null) {
+            FileWriter writer = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            for (Integer element : sequence) {
+                bufferedWriter.write(element + System.getProperty("line.separator"));
+            }
+            bufferedWriter.close();
+            writer.close();
+        }
+    }
+
+    public static void writeToFileBinary(File file, String sequence) throws IOException {
         if (file != null) {
             FileWriter writer = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
